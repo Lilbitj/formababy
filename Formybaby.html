@@ -1,0 +1,1524 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For You</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background: linear-gradient(135deg, #ffc1e3 0%, #ffb3d9 50%, #ffc9e5 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== FIXED MUSIC BAR ===== */
+        .fixed-music-bar {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 40px);
+    max-width: 520px;
+
+    background: rgba(255, 255, 255, 0.28);
+    backdrop-filter: blur(14px);
+
+    padding: 8px 14px;
+    border-radius: 18px;
+
+    box-shadow: 0 6px 20px rgba(255, 105, 180, 0.18);
+    border: 1px solid rgba(255,255,255,0.35);
+
+    z-index: 9998;
+    display: none;
+}
+
+        .fixed-music-bar.show {
+            display: block;
+            animation: slideDownBar 0.5s ease-out;
+        }
+
+        .music-bar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .music-bar-image {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+}
+
+        .music-bar-info {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .music-bar-info h4 {
+    font-size: 0.75em;
+    margin-bottom: 2px;
+}
+
+.music-bar-info p {
+    font-size: 0.7em;
+    color: #555;
+}
+        .music-bar-btn {
+    background: rgba(255,105,180,0.9);
+    padding: 6px 14px;
+    font-size: 12px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(255,105,180,0.35);
+                  }
+
+        .music-bar-btn:hover {
+    transform: scale(1.08);
+    background: #ff69b4;
+}
+    /* ===== MINI MUSIC PLAYER ===== */
+.mini-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(255, 105, 180, 0.35);
+    backdrop-filter: blur(14px);
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 8px 25px rgba(255,105,180,0.35);
+    border: 1px solid rgba(255,255,255,0.4);
+
+    cursor: pointer;
+    z-index: 9999;
+    transition: transform 0.3s ease;
+}
+
+.mini-player:hover {
+    transform: scale(1.1);
+}
+
+.mini-icon {
+    font-size: 22px;
+    color: white;
+    pointer-events: none;
+}
+      @keyframes slideDownBar {
+    from {
+        transform: translateX(-50%) translateY(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #ffc1e3 0%, #ffb3d9 50%, #ffc9e5 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .loading-screen.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-content {
+            text-align: center;
+            color: white;
+        }
+
+        .loading-heart {
+            font-size: 5em;
+            margin-bottom: 30px;
+        }
+
+        .loading-text {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(255, 105, 180, 0.3);
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .start-button {
+            background: white;
+            color: #ff69b4;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.4);
+            transition: all 0.3s;
+            animation: pulse 2s ease-in-out infinite;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 105, 180, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .page {
+            min-height: 100vh;
+            display: none;
+            padding: 40px 20px;
+            padding-top: 100px;
+        }
+
+        .page.active {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        /* ===== PAGE 1: LOVE LETTER ===== */
+        .love-letter-container {
+            max-width: 700px;
+            width: 100%;
+            display: inline-block;
+  cursor: pointer;
+  background: #ff6a7f;
+            background-position: center;
+            background-blend-mode: lighten;
+            border-radius: 20px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .love-letter-container::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.90);
+            z-index: 0;
+        }
+
+
+        .letter-header,
+        .letter-content,
+        .letter-signature {
+            position: relative;
+            z-index: 1;
+        }
+
+        .love-letter-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ffc1e3, #ffb3d9, #ffd6ec);
+        }
+
+        .letter-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: slideDown 1s ease-out;
+            position: relative;
+            z-index: 1;
+        }
+
+        .letter-header h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .letter-header .hearts {
+            font-size: 2em;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        .letter-content {
+            color: #444;
+            line-height: 2;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .letter-content p {
+            margin-bottom: 20px;
+            opacity: 1;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .letter-content p:nth-child(1) { animation-delay: 0.3s; }
+        .letter-content p:nth-child(2) { animation-delay: 0.6s; }
+        .letter-content p:nth-child(3) { animation-delay: 0.9s; }
+        .letter-content p:nth-child(4) { animation-delay: 1.2s; }
+        .letter-content p:nth-child(5) { animation-delay: 1.5s; }
+
+        .letter-signature {
+            text-align: right;
+            font-style: italic;
+            color: #666;
+            margin-top: 40px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 1.8s forwards;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-box {
+            background: linear-gradient(135deg, #ffc1e350, #ffb3d950);
+            border-left: 4px solid #ffb3d9;
+            padding: 20px;
+            margin: 30px 0;
+            border-radius: 10px;
+            font-style: italic;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 1.8s forwards;
+            position: relative;
+            z-index: 1;
+        }
+.letter-content .quote-box,
+.letter-content .letter-signature {
+    opacity: 1;
+}
+        /* ===== PAGE 2: PHOTO ALBUM WITH DECORATIONS ===== */
+        .album-container {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .album-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: slideDown 0.8s ease-out;
+        }
+
+        .album-header h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        /* DECORATIONS */
+        .decorations {
+            text-align: center;
+            margin-bottom: 50px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        .deco-hearts {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: heartbeat 2s infinite;
+        }
+
+        .deco-text {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            color: #ff69b4;
+            font-size: 1.5em;
+            font-style: italic;
+            text-shadow: 1px 1px 2px rgba(255, 182, 217, 0.3);
+            margin: 0 auto;
+            max-width: 600px;
+        }
+
+        .deco-flowers {
+            margin-top: 20px;
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #ffe5f0 0%, #ffd6ec 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 0;
+            animation: cardPop 0.6s ease-out forwards;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.2s; }
+        .card:nth-child(2) { animation-delay: 0.4s; }
+        .card:nth-child(3) { animation-delay: 0.6s; }
+        .card:nth-child(4) { animation-delay: 0.8s; }
+        .card:nth-child(5) { animation-delay: 1s; }
+        .card:nth-child(6) { animation-delay: 1.2s; }
+
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            height: 300px;
+        }
+
+        .card-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.5s;
+        }
+
+        .card:hover .card-image {
+            transform: scale(1.1);
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .card-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card-quote {
+            font-style: italic;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .card-date {
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        /* ===== PAGE 3: CREDITS (MOVIE STYLE) ===== */
+        #page3 {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #ffc1e3 0%, #ffb3d9 50%, #ffc9e5 100%);
+        }
+
+        .credits-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .credits-scroll {
+            position: absolute;
+            bottom: -100%;
+            width: 100%;
+            text-align: center;
+            color: #ff69b4;
+            padding: 50px 20px;
+            animation: scrollUp 8s linear forwards;
+        }
+
+        .credit-line {
+            font-size: 0.5em;
+            margin: 60px 0;
+            line-height: 1.6;
+            text-shadow: 2px 2px 8px rgba(255, 182, 217, 0.5);
+        }
+
+        .credit-title {
+            font-size: 1em;
+            font-weight: bold;
+            margin: 80px 0;
+            color: black;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.5);
+        }
+
+        .credit-heart {
+            font-size: 1.5em;
+            margin: 60px 0;
+            display: block;
+            animation: heartbeat 1.5s infinite;
+        }
+
+        .credit-small {
+            font-size: 0.5em;
+            color: black;
+        }
+
+        .credit-emphasis {
+            font-size: 0.3em;
+            color: black;
+            font-weight: bold;
+        }
+
+        .typewriter-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeIn 1s ease-in 10s forwards;
+            text-align: center;
+        }
+
+        .typewriter-text {
+            font-size: 2em;
+            color: black;
+            white-space: nowrap;
+            overflow: hidden;
+            border-right: 3px solid #ff69b4;
+            animation: typing 3s steps(25) 10s forwards, blink 0.75s step-end infinite;
+            display: inline-block;
+        }
+.translate-btn {
+    position: absolute;
+    top: 160px;
+    right: 20px;
+    background: #ff1493;
+    color: white;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(255,105,180,0.4);
+}
+
+.translate-btn:hover {
+    background: #ff1493;
+    transform: scale(1.05);
+}
+        /* ===== NAVIGATION BUTTON ===== */
+        .next-btn {
+            background: white;
+            color: #ff9ec7;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 5px 20px rgba(255, 182, 217, 0.4);
+            transition: all 0.3s;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 2.5s forwards;
+            font-family: 'Times New Roman', Times, serif;
+            position: relative;
+            z-index: 10;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 30px rgba(255, 182, 217, 0.6);
+            background: linear-gradient(135deg, #ffc1e3, #ffb3d9);
+            color: white;
+        }
+
+        .next-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .reset-btn {
+            position: fixed;
+            bottom: 150px;
+            left: 10%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeInUp 1s ease-in 13s forwards;
+            z-index: 100;
+        }
+ .lyrics-btn {
+
+margin-top: 12px;
+
+position: fixed;
+bottom: 90px;
+left: 25%;
+transform: translateX(-50%);
+
+opacity: 0;
+animation: fadeInUp 1s ease-in 13s forwards;
+
+z-index: 100;
+}
+.lyrics-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(255,105,180,0.5);
+}
+        /* ===== MODAL ===== */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .modal-image {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+            animation: zoomIn 0.3s;
+        }
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+            z-index: 1001;
+        }
+
+        .close:hover {
+            color: #ff69b4;
+            transform: scale(1.2);
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes cardPop {
+            from {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes rotateIn {
+            from {
+                opacity: 0;
+                transform: rotate(-180deg) scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: rotate(0) scale(1);
+            }
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            10%, 30% { transform: scale(1.1); }
+            20%, 40% { transform: scale(1); }
+        }
+
+        @keyframes scrollUp {
+            from {
+                bottom: -100%;
+            }
+            to {
+                bottom: 100%;
+            }
+        }
+
+        @keyframes typing {
+            from {
+                width: 0;
+            }
+            to {
+                width: 100%;
+            }
+        }
+
+        @keyframes blink {
+            from, to {
+                border-color: transparent;
+            }
+            50% {
+                border-color: #ff69b4;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .love-letter-container {
+                padding: 30px 20px;
+            }
+
+            .letter-header h1 {
+                font-size: 2em;
+            }
+
+            .album-header h1 {
+                font-size: 2em;
+            }
+
+            .deco-text {
+                font-size: 1.2em;
+                padding: 20px;
+            }
+
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+/* ===== PAGE 3: CLEAN FAST CREDITS ===== */
+#page3 {
+    background: linear-gradient(135deg, #ffc1e3, #ffb3d9, #ffc9e5);
+    overflow: hidden;
+}
+
+.credits-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.credits-scroll {
+    position: absolute;
+    bottom: -100%;
+    width: 100%;
+    text-align: center;
+    padding: 40px 20px;
+    animation: scrollUp 8s linear forwards;
+}
+
+/* TITLE */
+.credit-title {
+    font-size: 2em;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-bottom: 50px;
+    color: #000;
+}
+
+/* MAIN LINE */
+.credit-line {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 28px 0;
+    color: #000;
+}
+
+/* SMALL TEXT */
+.credit-small {
+    font-size: 0.85em;
+    opacity: 0.8;
+}
+
+/* EMPHASIS */
+.credit-emphasis {
+    font-size: 1.4em;
+    font-weight: 600;
+    margin: 36px 0;
+    color: #000;
+}
+
+/* HEART */
+.credit-heart {
+    font-size: 1.8em;
+    margin: 24px 0;
+    animation: heartbeat 1.5s infinite;
+}
+
+/* END */
+.credit-end {
+    font-size: 1em;
+    margin-top: 40px;
+    opacity: 0.85;
+}
+            .typewriter-text {
+                font-size: 1.3em;
+            }
+/* ===== PAGE 4: LYRICS (SPOTIFY STYLE) ===== */
+/* BACKGROUND BLUR DINAMIS */
+#bgBlur {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(255,105,180,0.35),
+        rgba(255,182,193,0.35)
+    );
+    filter: blur(90px);
+    z-index: -2;
+    transition: background 1.2s ease;
+}
+            .lyrics-container {
+    max-width: 720px;
+    margin: auto;
+    padding: 140px 20px 120px;
+    text-align: center;
+
+    /* BORDER */
+    border: 2px solid rgba(255,255,255,0.35);
+    border-radius: 28px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+}
+
+.lyrics-title {
+    font-size: 1.8em;
+    margin-bottom: 60px;
+    color: rgba(255,255,255,0.9);
+    font-weight: 600;
+}
+
+.lyrics {
+    display: flex;
+    flex-direction: column;
+    gap: 34px;
+}
+
+.lyric-line {
+    opacity: 0.25;
+    filter: blur(0.6px);
+    transition: 
+        opacity 0.4s ease,
+        transform 0.4s ease,
+        filter 0.4s ease;
+}
+
+.lyric-line p {
+    font-size: 1.35em;
+    font-weight: 600;
+    color: white;
+    line-height: 1.7;
+}
+
+/* 🎯 BARIS AKTIF */
+.lyric-line.active,
+.lyric-line.active-next {
+    opacity: 1;
+    filter: blur(0);
+}
+
+.lyric-line.active {
+    transform: scale(1.08);
+}
+
+.lyric-line.active-next {
+    transform: scale(1.02);
+    opacity: 0.75;
+}
+/* efek fokus tengah */
+.lyric-line.active p {
+    text-shadow: 0 4px 18px rgba(255,105,180,0.6);
+}
+            .loading-text {
+                font-size: 1.5em;
+            }
+
+            .loading-heart {
+                font-size: 4em;
+            }
+        .page {
+    position: relative;
+    z-index: 1;
+}
+
+#page4 {
+    z-index: 5;
+}
+            
+        }
+    
+    </style>
+</head>
+<body>
+    
+    <!-- FIXED MUSIC BAR -->
+    <div class="fixed-music-bar" id="fixedMusicBar">
+        <div class="music-bar-content">
+          <img src="musicbg.jpeg" class="music-bar-image">
+<div id="musicInfo">
+<audio id="bgMusic" src="BercintaLewatKataa.mp3"></audio>
+      <p>Now Playing </p>
+    <p>Bercinta Lewat Kata - Donne Maula</p>
+            </div>
+            
+            <button class="music-bar-btn" onclick="toggleMusic()">
+                <span id="musicBarIcon">ᯤ</span>
+          
+            </button>
+        </div>
+    </div>
+<div class="mini-player" id="miniPlayer" onclick="toggleMusic()">
+    <span class="mini-icon" id="miniIcon">ᯤ</span>
+</div>
+    <!-- LOADING SCREEN -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-content">
+            <div class="loading-heart">➷</div>
+            <div class="loading-text">For You...</div>
+            <button class="start-button" id="startButton">
+                ★ Click to Start ★
+            </button>
+        </div>
+    </div>
+
+    <!-- PAGE 1: LOVE LETTER -->
+    <div class="page" id="page1">
+        <div class="love-letter-container">
+  
+            <div class="letter-header">
+                <h1>For you!</h1>
+                <div class="hearts">𐔌՞ ܸ.ˬ.ܸ՞𐦯</div>
+            </div>
+<button class="translate-btn" onclick="toggleTranslate()">
+    ❗ Translate
+</button>
+           <div class="letter-content" id="letterContent">     <p>Hai darling,</p>
+                
+                <p>I think this is far too late for me to send this, but you know the reason... I'm kinda busy lately and honestly I dont want to send this next year but I dont have that much time to make this cause youre always being cranky and would be mad when im gone for a while, when im making this i need some space to focus and spend much time like a hours, im sorry for making you waiting so long and I know you need the status asap. And I'll not say "would you be my gf?" cuz I already knew the answer, I only send this to give the reason why I'm fallin' love with you.</p>
+                
+                <div class="quote-box">
+                    "You're my comfort person. Like, the one I wanna run to when things go bad, or when I'm just happy and I wanna share it with someone. I love the way you talk, the way you laugh, the way you care even when you say you don't know how."
+                </div>
+
+                <p>I love everything. Even your flaws. Even your silence. And I don't wanna lose you. Not now, not ever. I just wanna keep choosing you. Even when days get hard, even when we fight, even when we both mess up. You're still my person.</p>
+                    
+                <p>The one I wanna hold when the world feels too loud. The one I wanna love, in all versions of you. Forever, if you let me. So yeah I guess what I'm trying to say is, I love you. Maybe a little too much. Maybe in ways I can't really hold. But I do. I really do.</p>
+                
+                <div class="letter-signature">
+                    <p>With love,</p>
+                    <p><strong>Your Ms. Annoying ❤‍🩹</strong></p>
+                </div>
+            </div>
+
+            <button class="next-btn" onclick="nextPage()">See Your Photo Album ➜</button>
+        </div>
+    </div>
+
+    <!-- PAGE 2: PHOTO ALBUM -->
+    <div class="page" id="page2">
+        <div class="album-container">
+            <div class="album-header">
+                <h1>⭑.ᐟ</h1>
+                <p>Every pic you take, there's would be the whole paragraph need to describe your beauty</p>
+            </div>
+
+            <!-- DECORATIONS -->
+            <div class="decorations">
+                   <div class="deco-text">
+                    "In every moment captured, I see the reason why my heart chose you"
+                </div>
+                <div class="deco-flowers"> ⋆────୨ৎ────⋆ </div>
+            </div>
+
+            <div class="gallery">
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="as1.jpg" alt="Foto 1" class="card-image" onclick="openModal(this.src)">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">ོ</h3>
+                        <p class="card-quote">"The first pic you send without timer."</p>
+                        <p class="card-date">📅 Oct 2025</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="as6.jpg" alt="Foto 2" class="card-image" onclick="openModal(this.src)">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">★</h3>
+                        <p class="card-quote">"My favourite one that you send to me."</p>
+                        <p class="card-date">📅 20 Oct 2025</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="as4.jpg" alt="Foto 3" class="card-image" onclick="openModal(this.src)">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">༗</h3>
+                        <p class="card-quote">"The look of those eyes, when you need to be away from phone but you still find a way to let me know what you're doin'."</p>
+                        <p class="card-date">📅 16 Nov 2024</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="as3.jpg" alt="Foto 4" class="card-image" onclick="openModal(this.src)">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">𓂋 🪽</h3>
+                        <p class="card-quote">"You look angelic in those clothes but I don't like it when you wearin' it in public."</p>
+                        <p class="card-date">📅 18 Nov 2025</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="as8.jpg" alt="Foto 5" class="card-image" onclick="openModal(this.src)">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">∞ ֶָ֢.</h3>
+                        <p class="card-quote">"There's no words can describe how I love you."</p>
+                        <p class="card-date">📅 18 Nov 2025</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-image-wrapper">
+                        <img src="as9.jpg" alt="Foto 6" class="card-image" onclick="openModal(this.src)">
+                        <div class="card-overlay"></div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">૮ • ﻌ - ა⁩</h3>
+                        <p class="card-quote">"You and your cute pose."</p>
+                        <p class="card-date">📅 24 Nov 2025</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="next-btn" onclick="nextPage()">Continue ➜</button>
+        </div>
+    </div>
+
+    <!-- PAGE 3: MOVIE CREDITS -->
+ <div class="page" id="page3">
+    <div class="credits-wrapper">
+
+        <div class="credits-scroll">
+
+            <div class="credit-title">CREDITS</div>
+
+            <div class="credit-line">
+                <span class="credit-small">Made with</span><br>
+                <span class="credit-heart">𖹭</span><br>
+                <span class="credit-small">for</span>
+            </div>
+
+            <div class="credit-emphasis">𓍯𓂃</div>
+
+            <div class="credit-line">
+                <span class="credit-small">Music</span><br>
+                Bercinta Lewat Kata<br>
+                <span class="credit-small">Donne Maula</span>
+            </div>
+
+            <div class="credit-line">
+                <span class="credit-small">Photos</span><br>
+                Your beauty
+            </div>
+
+            <div class="credit-line">
+                <span class="credit-small">Created by</span><br>
+                Your Ms. Annoying
+            </div>
+
+            <div class="credit-heart">❤︎</div>
+
+            <div class="credit-end">
+                Thank you for being mine
+            </div>
+        <div class="typewriter-container">
+            <div class="typewriter-text" id="typewriterText"></div>
+        </div>
+  <button class="next-btn reset-btn" onclick="resetToFirst()">
+    See Again from Start 🔄
+</button>
+<button class="next-btn lyrics-btn" onclick="goToLyrics()">
+    🎵 Lirik Lagu
+</button>
+</div>
+    </div>
+ </div>
+        
+    <!-- PAGE 4: LYRICS -->
+    <div id="bgBlur"></div>
+<div class="page" id="page4">
+    <div class="lyrics-container">
+        <h1 class="lyrics-title">➹ Bercinta Lewat Kata — Donne Maula</h1>
+
+        <div class="lyrics" id="lyrics">
+          <div class="lyric-line" data-time="1.0">
+    
+        <p>[instrumen]</p>
+    
+</div>
+
+<div class="lyric-line" data-time="11.5">
+    
+        <p>Apakah cinta masih sama jika kau tahu ujungnya</p>
+    
+</div>
+
+<div class="lyric-line" data-time="21.4">
+    
+        <p>Satu perkenalan, dua pendekatan... </p>
+    
+</div>
+
+<div class="lyric-line" data-time="27.2">
+     <p> apa kau bosan? </p>
+    
+</div>
+
+<div class="lyric-line" data-time="31.7">
+    
+        <p>Bencana-bencana</p>
+    
+</div>
+
+<div class="lyric-line" data-time="37.0">
+    
+        <p>Diluar rencana</p>
+    
+</div>
+
+<div class="lyric-line" data-time="42.3">
+    
+        <p>Janji-janji fana</p>
+    
+</div>
+
+<div class="lyric-line" data-time="47.8">
+    
+        <p>membuat merana, hm...</p>
+    
+</div>
+
+<div class="lyric-line" data-time="53.6">
+    
+        <p>Cerita kita takkan seperti di layar-layar kaca</p>
+    
+</div>
+
+<div class="lyric-line" data-time="64.5">
+    
+        <p>Gemas romantis tak masuk logika</p>
+    
+</div>
+
+<div class="lyric-line" data-time="74.7">
+    
+        <p>Cerita kita kan berjalan perlahan dan sederhana</p>
+    
+</div>
+
+<div class="lyric-line" data-time="86.1">
+    
+        <p>Saling mengerti hanya lewat bicara, hm...</p>
+    
+</div>
+
+<div class="lyric-line" data-time="96.6">
+    
+        <p>[Instrumen]</p>
+    
+</div>
+
+<div class="lyric-line" data-time="115.0">
+    
+        <p>Cerita kita takkan seperti di layar-layar kaca</p>
+    
+</div>
+
+<div class="lyric-line" data-time="125.8">
+    
+        <p>Gemas romantis tak masuk logika</p>
+    
+</div>
+
+<div class="lyric-line" data-time="136.3">
+    
+        <p>Cerita kita kan berjalan perlahan dan sederhana</p>
+    
+</div>
+
+<div class="lyric-line" data-time="147.4">
+    
+        <p>Saling mengerti hanya lewat bicara, hm...</p>
+    
+</div>
+
+<div class="lyric-line" data-time="158.7">
+    
+        <p>Lepas dan hangat</p>
+    
+</div>
+
+<div class="lyric-line" data-time="160.8">
+    
+        <p>Bercinta lewat kata</p>
+    
+</div>
+
+
+
+        <button class="next-btn" onclick="resetToFirst()">Back to Start ↺</button>
+    </div>
+    </div>
+    <!-- MODAL FOR IMAGE -->
+    <div id="imageModal" class="modal" onclick="closeModal()">
+        <span class="close">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" class="modal-image">
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        let isPlaying = true;
+        const bgMusic = document.getElementById('bgMusic');
+        const loadingScreen = document.getElementById('loadingScreen');
+        const startButton = document.getElementById('startButton');
+        const fixedMusicBar = document.getElementById('fixedMusicBar');
+const miniPlayer = document.getElementById('miniPlayer');
+        // Loading screen
+        window.addEventListener('load', function() {
+            startButton.style.display = 'block';
+        });
+
+        // Start button click handler
+        startButton.addEventListener('click', function() {
+            bgMusic.play().catch(e => console.log('Audio play failed:', e));
+            loadingScreen.classList.add('hide');
+            fixedMusicBar.classList.add('show');
+miniPlayer.style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('page1').classList.add('active');
+                fixedMusicBar.classList.add('show');
+            }, 800);
+        });
+
+  
+let isEnglish = true;
+
+const letterEN = `
+<p>Hai darling,</p>
+
+<p>I think this is far too late for me to send this, but you know the reason... I'm kinda busy lately and honestly I want to send this next year but I think it will be too long, and I know you need the status asap. And I'll not say "would you be my gf?" cuz I already knew the answer, I only send this to give the reason why I'm fallin' love with you.</p>
+
+<div class="quote-box">
+"You're my comfort person. Like, the one I wanna run to when things go bad, or when I'm just happy and I wanna share it with someone. I love the way you talk, the way you laugh, the way you care even when you say you don't know how."
+</div>
+
+<p>I love everything. Even your flaws. Even your silence. And I don't wanna lose you. Not now, not ever. I just wanna keep choosing you. Even when days get hard, even when we fight, even when we both mess up. You're still my person.</p>
+
+<p>The one I wanna hold when the world feels too loud. The one I wanna love, in all versions of you. Forever, if you let me. So yeah I guess what I'm trying to say is, I love you. Maybe a little too much. Maybe in ways I can't really hold. But I do. I really do.</p>
+
+<div class="letter-signature">
+<p>With love,</p>
+<p><strong>Your Ms. Annoying ❤‍🩹</strong></p>
+</div>
+`;
+
+const letterID = `
+<p>Hai sayang,</p>
+
+<p>Mungkin ini terasa agak terlambat buat aku kirim, tapi kamu tau alasannya… akhir-akhir ini aku sibuk banget. 
+         Jujur, aku sebenernya ga mau mengirim ini tahun depan, tapi aku ga punya banyak waktu untuk membuatnya karena kamu selalu ngambek dan bakal jadi sumala kalau aku tinggal. Disisi lain, pada saat aku bikin ini, aku butuh ruang untuk fokus dan makan banyak waktu, seperti berjam-jam. maaf karena membuat kamu menunggu terlalu lama. apalagi aku tau kamu butuh kejelasan sekarang. Aku juga nggak mau nanya “mau nggak jadi pacarku?” karena aku sudah tau jawabannya. Aku cuma pengen kamu tau alasan kenapa aku jatuh cinta sama kamu.</p>
+
+<div class="quote-box">
+“Kamu itu tempat ternyamanku. Orang pertama yang pengen aku datengin saat semuanya terasa berat, atau saat aku lagi bahagia dan pengen berbagi. Aku suka cara kamu ngomong, cara kamu ketawa, dan cara kamu peduli—bahkan saat kamu bilang kamu nggak tau caranya.”
+</div>
+
+<p>Aku mencintai semuanya tentang kamu. Termasuk kekuranganmu. Termasuk diam-diammu. Dan aku nggak mau kehilangan kamu. Sekarang, besok, atau kapan pun. Aku cuma mau terus milih kamu. Meski hari-hari berat, meski kita berantem, meski kita sama-sama bikin salah. Kamu tetap orangku.</p>
+
+<p>Orang yang ingin aku peluk saat dunia terasa terlalu berisik. Orang yang ingin aku cintai dalam semua versimu. Selamanya, kalau kamu mau. Jadi ya… intinya aku cuma mau bilang, aku cinta kamu. Mungkin agak berlebihan. Mungkin dengan cara yang nggak selalu bisa aku jelasin. Tapi aku serius. Aku beneran cinta.</p>
+
+<div class="letter-signature">
+<p>Dengan cinta,</p>
+<p><strong>Your Ms. Annoying ❤‍🩹</strong></p>
+</div>
+`;
+function toggleTranslate() {
+    const content = document.getElementById("letterContent");
+
+    content.style.transition = "opacity 0.3s";
+    content.style.opacity = 0;
+
+    setTimeout(() => {
+        content.innerHTML = isEnglish ? letterID : letterEN;
+        content.style.opacity = 1;
+        isEnglish = !isEnglish;
+    }, 300);
+}  
+
+        function nextPage() {
+    document.getElementById('page' + currentPage).classList.remove('active');
+    currentPage++;
+
+    if (currentPage > 4) currentPage = 1;
+    document.getElementById('page' + currentPage).classList.add('active');
+
+    // logic player
+    
+    if (currentPage === 3) {
+        setTimeout(startTypewriter, 9000);
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+        function resetToFirst() {
+            document.getElementById('page' + currentPage).classList.remove('active');
+            currentPage = 1;
+            document.getElementById('page1').classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function startTypewriter() {
+    const typewriterElement = document.getElementById('typewriterText');
+
+    typewriterElement.innerHTML = `
+        Officially at 1 June<br>
+        <span style="
+            display:block;
+            margin-top:8px;
+            font-size:0.6em;
+            opacity:0.9;
+            text-align:center;
+            color: white;
+        ">
+            (our date when I confess for first time)
+        </span>
+    `;
+}
+
+        function toggleMusic() {
+    const iconBar = document.getElementById('musicBarIcon');
+    const miniIcon = document.getElementById('miniIcon');
+
+    if (isPlaying) {
+        bgMusic.pause();
+        if (iconBar) iconBar.textContent = '▶';
+        if (miniIcon) miniIcon.textContent = '▶';
+    } else {
+        bgMusic.play();
+        if (iconBar) iconBar.textContent = 'ᯤ';
+        if (miniIcon) miniIcon.textContent = 'ᯤ';
+    }
+    isPlaying = !isPlaying;
+if (!isPlaying) {
+    miniPlayer.classList.add('playing');
+} else {
+    miniPlayer.classList.remove('playing');
+}
+        }
+        function openModal(src) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = src;
+        }
+
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 120) {
+        fixedMusicBar.classList.remove('show');
+        miniPlayer.style.display = 'flex';
+    } else {
+        fixedMusicBar.classList.add('show');
+        miniPlayer.style.display = 'none';
+    }
+});
+/* ===== GO TO LYRICS PAGE ===== */
+function goToLyrics() {
+    // matikan page aktif
+    document.getElementById('page' + currentPage).classList.remove('active');
+
+    // set page ke 4
+    currentPage = 4;
+
+    // aktifkan page 4
+    document.getElementById('page4').classList.add('active');
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+/* ===== LYRICS SYNC ===== */
+const lyricLines = document.querySelectorAll('.lyric-line');
+
+const bgBlur = document.getElementById("bgBlur");
+
+bgMusic.addEventListener("timeupdate", () => {
+    const currentTime = bgMusic.currentTime;
+
+    lyricLines.forEach((line, index) => {
+        const time = parseFloat(line.dataset.time);
+        const nextTime = lyricLines[index + 1]
+            ? parseFloat(lyricLines[index + 1].dataset.time)
+            : Infinity;
+
+        if (currentTime >= time && currentTime < nextTime) {
+
+            lyricLines.forEach(l =>
+                l.classList.remove("active", "active-next")
+            );
+
+            line.classList.add("active");
+
+            if (lyricLines[index + 1]) {
+                lyricLines[index + 1].classList.add("active-next");
+            }
+
+            line.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+
+            // 🎨 background blur ikut lirik
+            const hue = (index * 40) % 360;
+            bgBlur.style.background = `
+                linear-gradient(
+                    135deg,
+                    hsla(${hue},90%,75%,0.35),
+                    hsla(${(hue + 40) % 360},90%,85%,0.35)
+                )
+            `;
+        }
+    });
+});
+    </script>
+</body>
+</html>
